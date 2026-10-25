@@ -7,6 +7,7 @@ import DescripcionCompleta from "@/components/DescripcionCompleta";
 import AsesorProducto from "@/components/AsesorProducto";
 import CompraProducto from "@/components/CompraProducto";
 import FilaProductos from "@/components/FilaProductos";
+import ResenasProducto from "@/components/ResenasProducto";
 import Migas from "@/components/Migas";
 import Precio from "@/components/Precio";
 import { IMAGEN_GENERICA, obtenerProducto, productos, relacionados } from "@/lib/productos";
@@ -204,6 +205,8 @@ export default async function PaginaProducto({ params }) {
             )}
           </section>
         </div>
+
+        <ResenasProducto sku={p.sku} />
       </div>
 
       <FilaProductos titulo="Productos relacionados" productos={relacionados(p)} href={`/categoria/${p.categoriaSlug}`} />

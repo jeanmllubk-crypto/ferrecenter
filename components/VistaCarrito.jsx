@@ -3,13 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapPin, Minus, Navigation, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useCarrito } from "./CarritoContext";
 import { IconoWhatsApp } from "./IconosSociales";
 import { linkWhatsApp, TIENDA } from "@/lib/config";
 import { soles } from "@/lib/formato";
 import LogoPago from "./LogoPago";
+import { nuevoCodigoPedido, registrarPedido } from "@/lib/registro";
 import SelectorUbigeo from "./SelectorUbigeo";
 
 // El mapa (Leaflet) se descarga solo cuando el cliente lo abre
@@ -141,9 +142,10 @@ function InfoPago({ pago, monto, destino }) {
   );
 }
 
-function armarMensaje(items, subtotal, envio, datos) {
+function armarMensaje(items, subtotal, envio, datos, codigo) {
   const lineas = [
     "*Nuevo pedido – FerreCenter*",
+    `*Pedido N°:* ${codigo}`,
     "",
     ...items.map(
       (i, n) => `${n + 1}. ${i.nombre} (${i.marca})\n   Cód.: ${i.sku}\n   ${i.cantidad} x ${soles(i.precio)} = *${soles(i.cantidad * i.precio)}*`
@@ -193,6 +195,8 @@ export default function VistaCarrito({ actuales }) {
   });
   const [errores, setErrores] = useState({});
   const [verMapa, setVerMapa] = useState(false);
+  const [ultimoPedido, setUltimoPedido] = useState("");
+  const firmaPedido = useRef("");
   const envio = datos.destino === TACNA ? TIENDA.envioTacna : 0;
   const conEnvio = datos.destino === TACNA || datos.destino === PERU;
 
@@ -261,7 +265,31 @@ export default function VistaCarrito({ actuales }) {
       const { nombre, destino, ubigeo, direccion, referencia, ubicacion, pago } = datos;
       localStorage.setItem(CLAVE_DATOS, JSON.stringify({ nombre, destino, ubigeo, direccion, referencia, ubicacion, pago }));
     } catch {}
-    window.open(linkWhatsApp(armarMensaje(items, total, envio, datos)), "_blank", "noopener");
+    // Cada pedido lleva su número: sirve para ubicarlo en la hoja de ventas y luego para calificar la compra
+    // Si vuelve a tocar el botón sin cambiar nada, es el mismo pedido (no se duplica en la hoja)
+    const firma = JSON.stringify([items, datos]);
+    const codigo = ultimoPedido && firmaPedido.current === firma ? ultimoPedido : nuevoCodigoPedido();
+    firmaPedido.current = firma;
+    const conDireccion = datos.destino !== RECOJO;
+    registrarPedido({
+      codigo,
+      nombre: datos.nombre.trim(),
+      destino: datos.destino,
+      departamento: conDireccion ? datos.ubigeo.departamento : "",
+      provincia: conDireccion ? datos.ubigeo.provincia : "",
+      distrito: conDireccion ? datos.ubigeo.distrito : "",
+      direccion: conDireccion ? datos.direccion.trim() : "",
+      referencia: conDireccion ? datos.referencia.trim() : "",
+      ubicacion: conDireccion && datos.ubicacion ? linkMapa(datos.ubicacion) : "",
+      items: items.map((i) => ({ sku: i.sku, nombre: i.nombre, cantidad: i.cantidad, precio: i.precio })),
+      subtotal: total,
+      envio,
+      total: total + envio,
+      pago: datos.pago,
+      notas: datos.notas.trim(),
+    });
+    window.open(linkWhatsApp(armarMensaje(items, total, envio, datos, codigo)), "_blank", "noopener");
+    setUltimoPedido(codigo);
   }
 
   if (!cargado) {
@@ -519,7 +547,19 @@ export default function VistaCarrito({ actuales }) {
         <button type="submit" className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-whatsapp py-3.5 font-bold text-white transition hover:bg-whatsapp-oscuro">
           <IconoWhatsApp className="h-5 w-5" /> Enviar pedido por WhatsApp
         </button>
+        {ultimoPedido && (
+          <p className="mt-3 rounded-lg bg-whatsapp/10 p-2.5 text-center text-sm text-gray-700" role="status">
+            Tu pedido <strong className="text-marca-900">N° {ultimoPedido}</strong> se abrió en WhatsApp. Si no se abrió, toca el botón otra vez.
+          </p>
+        )}
         <p className="mt-2 text-center text-xs text-gray-500">Te confirmaremos stock y datos de pago por WhatsApp.</p>
+        <p className="mt-1 text-center text-[11px] text-gray-400">
+          Al enviar tu pedido aceptas nuestra{" "}
+          <Link href="/privacidad" className="underline hover:text-marca-700">
+            política de privacidad
+          </Link>
+          .
+        </p>
       </form>
 
       {/* Total fijo en celular */}

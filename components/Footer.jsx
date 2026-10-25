@@ -25,6 +25,8 @@ export default function Footer({ categorias }) {
         { href: "/cambios-y-devoluciones", texto: "Cambios y devoluciones" },
         { href: "/contacto", texto: "Contacto" },
         { href: "/carrito", texto: "Mi carrito" },
+        { href: "/calificar", texto: "Califica tu compra" },
+        { href: "/privacidad", texto: "Política de privacidad" },
       ],
     },
     {
