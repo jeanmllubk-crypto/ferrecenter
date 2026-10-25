@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "productos": "node scripts/productos.mjs",
+    "sincronizar-google": "node scripts/sincronizar-google.mjs",
     "dev": "next dev",
     "build": "node scripts/productos.mjs && next build",
     "start": "next start"

@@ -1,5 +1,5 @@
 {
-  "generado": "2026-10-25T13:52:31.885Z",
+  "generado": "2026-10-25T23:46:22.375Z",
   "productos": [
     {
       "sku": "TRU-TAL-001",
@@ -205,7 +205,7 @@
       "precioOferta": 22,
       "precioFinal": 22,
       "descuento": 12,
-      "stock": 40,
+      "stock": 38,
       "garantia": "3 meses",
       "peso": 0.4,
       "imagenes": [

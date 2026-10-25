@@ -74,6 +74,41 @@ const numero = (v) => {
 };
 const esSi = (v) => ["si", "s", "yes", "x", "1", "true"].includes(normalizar(v));
 
+// La hoja de Google "FerreCenter - Ventas" (pestaña Productos) manda en precio, precio de oferta y stock.
+// El Excel sigue siendo la fuente de nombres, descripciones, fotos y especificaciones.
+// Si la hoja no responde, se usan los valores del Excel y la publicación sigue.
+async function aplicarHojaGoogle(productos, avisos) {
+  // La URL se lee de lib/config.js (registroUrl) sin importarlo, porque ese archivo es para Next
+  const config = fs.readFileSync(path.join(RAIZ, "lib", "config.js"), "utf8");
+  const registroUrl = config.match(/registroUrl:\s*"([^"]*)"/)?.[1];
+  if (!registroUrl || process.env.SIN_HOJA_GOOGLE) return;
+  let filas;
+  try {
+    const r = await fetch(`${registroUrl}?accion=productos`, { signal: AbortSignal.timeout(20000) });
+    const datos = await r.json();
+    if (!datos.ok) throw new Error(datos.error || "respuesta inválida");
+    filas = new Map(datos.productos.map((p) => [p.sku, p]));
+  } catch (e) {
+    avisos.push(`No se pudo leer la hoja de Google (${e.message}); se usaron los precios y el stock del Excel.`);
+    return;
+  }
+  let aplicados = 0;
+  for (const p of productos) {
+    const g = filas.get(p.sku);
+    if (!g) {
+      avisos.push(`${p.sku}: no está en la pestaña Productos de la hoja de Google; se usaron precio y stock del Excel (npm run sincronizar-google).`);
+      continue;
+    }
+    if (g.precio > 0) p.precio = g.precio;
+    p.precioOferta = g.precioOferta > 0 && g.precioOferta < p.precio ? g.precioOferta : null;
+    p.precioFinal = p.precioOferta ?? p.precio;
+    p.descuento = p.precioOferta ? Math.round((1 - p.precioOferta / p.precio) * 100) : 0;
+    p.stock = Math.max(0, Math.floor(Number(g.stock) || 0));
+    aplicados++;
+  }
+  console.log(`   Hoja de Google: precio y stock de ${aplicados} productos`);
+}
+
 function main() {
   return (async () => {
     if (!fs.existsSync(EXCEL)) {
@@ -244,6 +279,8 @@ function main() {
         orden: r, // posición en el Excel: filas más abajo = más nuevos
       });
     }
+
+    await aplicarHojaGoogle(productos, avisos);
 
     // Categorías con sus subcategorías
     const mapaCat = new Map();

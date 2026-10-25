@@ -1,61 +1,58 @@
-# Registro de ventas y reseñas con Google
+# Control de ventas, stock, ganancias y reseñas con Google
 
-Con esto, la tienda guarda sola cada pedido de la web en una hoja de Google, tú anotas las ventas de fuera de la web con un formulario, y los clientes pueden calificar lo que compraron. Todo es gratis y se hace **una sola vez** (unos 10 minutos).
+Todo se lleva en **un solo archivo**: la hoja de Google **FerreCenter - Ventas**.
 
-## Paso 1. Crear la hoja
+| Pestaña | Qué tiene | Quién la llena |
+|---|---|---|
+| **Resumen** | Ventas y ganancia del mes, ventas por canal y por mes, productos más vendidos, stock bajo | Se calcula sola |
+| **Ventas** | Una fila por venta: N° de pedido, canal (lista desplegable), estado, cliente, entrega, total | La web (solo) y el formulario "Registrar venta" |
+| **Detalle** | Una fila por producto vendido: cantidad, precio, costo y ganancia | Sola |
+| **Productos** | Costo, precio, precio de oferta, stock inicial, entradas, vendidos, stock actual y alerta | Tú: costo, precio, oferta, stock inicial y stock mínimo. El resto se calcula solo |
+| **Entradas** | Mercadería que compras al proveedor | El formulario "Registrar compra" (o a mano) |
+| **Reseñas** | Calificaciones de los clientes | La web; tú apruebas |
 
-1. Entra a <https://sheets.google.com> con la cuenta de Google de la tienda (por ahora puede ser la tuya).
-2. Crea una hoja en blanco y ponle de nombre **FerreCenter - Ventas**.
+## Quién manda en precios y stock
 
-## Paso 2. Pegar el código
+**La pestaña Productos manda.** El precio, el precio de oferta y el stock que ve el cliente en la web salen de ahí.
+El Excel del catálogo queda para nombres, descripciones, fotos y especificaciones.
+Para que un producto nuevo del Excel aparezca en la hoja: `npm run sincronizar-google` (lo hago yo cuando cargamos productos).
 
-1. En la hoja, ve al menú **Extensiones → Apps Script**. Se abre el editor en otra pestaña.
-2. Borra todo lo que aparece en el archivo `Código.gs`.
-3. Abre el archivo `google/Codigo.gs` de este proyecto, copia **todo** su contenido y pégalo en el editor.
-4. Arriba, cambia el nombre del proyecto de "Proyecto sin título" a **FerreCenter registro**.
-5. Guarda con **Ctrl + S**.
+- **Stock actual** = Stock inicial + Entradas − Vendidos. Los pedidos *Pendientes* ya descuentan stock; los *Cancelados* no.
+- **Ganancia** = precio cobrado − costo. Solo cuenta ventas *Pagadas* o *Entregadas*.
+- El costo de cada venta se guarda en el momento: si luego sube el costo, la ganancia de ventas pasadas no cambia.
 
-## Paso 3. Preparar la hoja (una sola vez)
+## Instalación (una sola vez)
 
-1. En la barra de arriba del editor, elige la función **configurar** y presiona **▶ Ejecutar**.
-2. Google pedirá permiso: **Revisar permisos** → elige tu cuenta → si aparece "Google no verificó esta app", toca **Configuración avanzada** → **Ir a FerreCenter registro (no seguro)** → **Permitir**.
-   (Es tu propio código: el aviso sale porque no lo publicó una empresa verificada).
-3. Al terminar, abajo en el **Registro de ejecución** aparece el **enlace del formulario "Registrar venta"**. Cópialo y guárdalo en tu celular (por ejemplo, en un chat contigo mismo o como acceso directo en la pantalla de inicio).
+1. Crea la hoja **FerreCenter - Ventas** en <https://sheets.new>.
+2. **Extensiones → Apps Script**, borra lo que haya y pega el código de `google/Codigo.gs` (te lo dejo copiado con la clave de sincronización ya puesta).
+3. Elige la función **configurar** y presiona **▶ Ejecutar**. Acepta los permisos (**Configuración avanzada → Ir a FerreCenter registro → Permitir**).
+4. **Implementar → Nueva implementación → ⚙ Aplicación web** — Ejecutar como: **Yo** · Acceso: **Cualquier usuario** → copia la URL que termina en `/exec` y pásamela.
 
-En la hoja ahora tienes las pestañas **Ventas** y **Reseñas**.
+### Si ya estaba instalado y te paso una versión nueva del código
+1. Pega el código nuevo en el editor (Ctrl + A, Ctrl + V) y guarda (Ctrl + S).
+2. Ejecuta **configurar** otra vez (no borra tus datos) y acepta los permisos nuevos si los pide.
+3. **Implementar → Gestionar implementaciones → ✏ (lápiz) → Versión: Nueva versión → Implementar.** La URL no cambia.
 
-## Paso 4. Publicar el código como aplicación web
+## Actualizar la web con el precio y el stock de la hoja
 
-1. En el editor, arriba a la derecha: **Implementar → Nueva implementación**.
-2. En el engranaje ⚙ de "Seleccionar tipo", elige **Aplicación web**.
-3. Llena así:
-   - Descripción: `Tienda`
-   - Ejecutar como: **Yo**
-   - Quién tiene acceso: **Cualquier usuario**
-4. Presiona **Implementar** y copia la **URL de la aplicación web** (termina en `/exec`).
-5. Pásame esa URL por el chat y yo la coloco en la tienda (va en `registroUrl` de `lib/config.js`).
+La web toma los datos de la hoja **cada vez que se publica**. Para no depender de mí:
 
-> "Cualquier usuario" significa que la tienda puede enviar pedidos y leer las reseñas aprobadas. Nadie puede ver tu hoja: sigue siendo privada.
+1. En Netlify: **Site configuration → Build & deploy → Build hooks → Add build hook** (nombre: `Hoja de Google`, rama `main`) → copia el enlace.
+2. En la hoja: menú **FerreCenter → Guardar enlace de Netlify** → pégalo.
 
-## Cómo se usa en el día a día
+Desde entonces:
+- **FerreCenter → Actualizar la web** publica al momento (tarda ~2 minutos).
+- Además se actualiza sola **todos los días a las 7 a. m.**
 
-### Pedidos de la web
-- Cada pedido llega a tu WhatsApp con su **N° de pedido** (ej. `FC-261025-AB12`) y al mismo tiempo aparece una fila en **Ventas** con estado **Pendiente**.
-- Ve cambiando el **Estado**: Pendiente → Pagado → Entregado (o Cancelado si no se concretó).
+## Día a día
 
-### Ventas fuera de la web (tienda, WhatsApp directo, Facebook…)
-- Abre el formulario **Registrar venta** desde tu celular y llénalo. Se agrega solo a **Ventas** con su canal y estado Entregado.
+- **Venta por la web:** llega a tu WhatsApp con su N° de pedido y aparece en **Ventas** como *Pendiente*. Cámbiala a *Pagado* → *Entregado* (o *Cancelado*).
+- **Venta en tienda, WhatsApp directo, Facebook…:** formulario **Registrar venta** desde el celular. Eliges el canal, los productos (de una lista) y la cantidad. Si diste descuento, pon el total cobrado.
+- **Llegó mercadería:** formulario **Registrar compra**: producto, cantidad y costo. Suma al stock y actualiza el costo.
+- **¿Agregaste productos nuevos a la hoja?** Menú **FerreCenter → Actualizar listas de productos** para que salgan en los formularios.
+- **Enlaces de los formularios:** menú **FerreCenter → Ver enlaces de los formularios**.
 
-### Reseñas
-1. Cuando entregues un pedido de la web, márcalo como **Entregado** en la hoja.
-2. Envíale al cliente por WhatsApp el enlace para calificar, con su número de pedido:
-   `https://ferrecenter.netlify.app/calificar?pedido=FC-261025-AB12`
-   Ejemplo de mensaje: *"¡Gracias por tu compra! ¿Nos ayudas calificando tus productos? Toma un minuto: (enlace)"*
-3. Sus calificaciones aparecen en la pestaña **Reseñas** con **Aprobada = No**.
-4. Revísalas y cambia a **Sí** las que quieras publicar. Aparecen en la página del producto al instante.
-
-Solo pueden calificar pedidos de la web que estén **Entregados**, una vez por producto.
-
-## Si cambias el código más adelante
-
-Si te paso una versión nueva de `Codigo.gs`: pégala en el editor, guarda y ve a **Implementar → Gestionar implementaciones → ✏ Editar → Versión: Nueva versión → Implementar**. La URL no cambia.
+## Reseñas
+1. Marca el pedido como **Entregado**.
+2. Envíale al cliente: `https://ferrecenter.netlify.app/calificar?pedido=FC-…` (con su número de pedido).
+3. Las calificaciones llegan a **Reseñas** con *Aprobada = No*. Cámbialas a **Sí** para publicarlas (salen al instante).
