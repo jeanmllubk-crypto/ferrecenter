@@ -10,6 +10,10 @@ import { categorias, destacados, imagenPrincipal, marcas, masVendidos, nuevos, o
 import { linkWhatsApp } from "@/lib/config";
 import { soles } from "@/lib/formato";
 import configBanners from "@/lib/banners";
+import TarjetasPortada from "@/components/TarjetasPortada";
+
+// Diseño de las tarjetas junto al carrusel: "producto" (foto y precio) o "icono" (ícono grande)
+const DISENO_TARJETAS = "icono";
 
 export const metadata = {
   alternates: { canonical: "/" },
@@ -70,31 +74,12 @@ export default function Inicio() {
 
       <div className="contenedor grid gap-4 pt-4 lg:grid-cols-[1fr_18rem]">
         <CarruselBanners banners={armarBanners()} />
-        <div className="hidden flex-col gap-4 lg:flex">
-          <Link href="/catalogo?oferta=1" className="group flex flex-1 flex-col justify-between rounded-2xl bg-acento-500 p-5 text-white">
-            <BadgePercent className="h-9 w-9" aria-hidden="true" />
-            <span>
-              <span className="block text-xl font-extrabold leading-tight">Ofertas del día</span>
-              <span className="flex items-center text-sm font-semibold group-hover:underline">
-                Aprovecha ahora <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              </span>
-            </span>
-          </Link>
-          <a
-            href={linkWhatsApp("Hola FerreCenter, necesito una cotización.")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex flex-1 flex-col justify-between rounded-2xl bg-whatsapp p-5 text-white"
-          >
-            <IconoWhatsApp className="h-9 w-9" />
-            <span>
-              <span className="block text-xl font-extrabold leading-tight">¿Compras por mayor?</span>
-              <span className="flex items-center text-sm font-semibold group-hover:underline">
-                Pide tu cotización <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              </span>
-            </span>
-          </a>
-        </div>
+        <TarjetasPortada
+          diseno={DISENO_TARJETAS}
+          oferta={ofertasDelDia(1)[0]}
+          ofertas={ofertasDelDia(12)}
+          mayoristas={destacados(4).filter((p) => p.imagenes.length && p.sku !== ofertasDelDia(1)[0]?.sku)}
+        />
       </div>
 
       <div className="contenedor mt-4 grid grid-cols-3 gap-2 text-center text-[11px] font-semibold text-marca-900 sm:text-sm">

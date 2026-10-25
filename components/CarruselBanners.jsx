@@ -147,7 +147,8 @@ export default function CarruselBanners({ banners: todos }) {
     >
       <div ref={pista} onScroll={alDesplazar} className="sin-scrollbar flex snap-x snap-mandatory overflow-x-auto rounded-2xl">
         {banners.map((b, i) => (
-          <div key={i} className="w-full shrink-0 snap-center" aria-roledescription="diapositiva" aria-label={`${i + 1} de ${total}`}>
+          // flex: cada banner se estira a la altura del más alto, así el fondo y los puntitos siempre coinciden
+          <div key={i} className="flex w-full shrink-0 snap-center" aria-roledescription="diapositiva" aria-label={`${i + 1} de ${total}`}>
             <Diapositiva b={b} i={i} />
           </div>
         ))}
