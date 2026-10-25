@@ -2,17 +2,35 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { MapPin, Minus, Navigation, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useCarrito } from "./CarritoContext";
 import { IconoWhatsApp } from "./IconosSociales";
 import { linkWhatsApp, TIENDA } from "@/lib/config";
 import { soles } from "@/lib/formato";
+import SelectorUbigeo from "./SelectorUbigeo";
+
+// El mapa (Leaflet) se descarga solo cuando el cliente lo abre
+const MapaUbicacion = dynamic(() => import("./MapaUbicacion"), {
+  ssr: false,
+  loading: () => <div className="h-64 animate-pulse rounded-lg bg-gray-100" />,
+});
 
 const CLAVE_DATOS = "ferrecenter-datos-cliente";
 
-const DESTINOS = ["Ciudad de Tacna", "Otra ciudad del Perú"];
+const RECOJO = "Recojo en tienda";
+const TACNA = "Ciudad de Tacna";
+const PERU = "Otra ciudad del Perú";
+const DESTINOS = [RECOJO, TACNA, PERU];
+const NOTA_DESTINO = { [RECOJO]: "Gratis", [TACNA]: `Envío ${soles(TIENDA.envioTacna)}`, [PERU]: "Por agencia" };
 const esContraEntrega = (f) => f.toLowerCase().includes("contra entrega");
+// Ubicación de la tienda: Google Maps abre la ruta desde donde esté el cliente
+const COORDS_TIENDA = TIENDA.mapaCoordenadas.replace(/\s+/g, "");
+const RUTA_TIENDA = `https://www.google.com/maps/dir/?api=1&destination=${COORDS_TIENDA}`;
+const linkMapa = (u) => `https://www.google.com/maps?q=${u.lat},${u.lng}`;
+const SIN_UBIGEO = { departamento: "", provincia: "", distrito: "", centro: null };
+const UBIGEO_TACNA = { departamento: "Tacna", provincia: "Tacna", distrito: "", centro: COORDS_TIENDA.split(",").map(Number) };
 // Yape / Plin → sus datos de config; si no, null
 const billetera = (f) => TIENDA.pagos[String(f).toLowerCase()] || null;
 
@@ -117,7 +135,8 @@ function InfoPago({ pago, monto, destino }) {
 
   return (
     <p className="mt-2 rounded-lg bg-gray-50 p-3 text-sm text-gray-700">
-      Pagas {monto} al recibir tu pedido{destino ? "" : " (solo ciudad de Tacna)"}: en efectivo, Yape o Plin.
+      {destino === RECOJO ? `Pagas ${monto} al recoger tu pedido en la tienda` : `Pagas ${monto} al recibir tu pedido`}
+      {destino ? "" : " (ciudad de Tacna o recojo en tienda)"}: en efectivo, Yape o Plin.
     </p>
   );
 }
@@ -131,12 +150,23 @@ function armarMensaje(items, subtotal, envio, datos) {
     ),
     "",
     `Subtotal: ${soles(subtotal)}`,
-    datos.destino === DESTINOS[0] ? `Envío (Tacna): ${soles(envio)}` : "Envío: por agencia, según tarifa (se coordina)",
+    datos.destino === TACNA
+      ? `Envío (Tacna): ${soles(envio)}`
+      : datos.destino === RECOJO
+        ? "Envío: gratis (recojo en tienda)"
+        : "Envío: por agencia, según tarifa (se coordina)",
     `*TOTAL: ${soles(subtotal + envio)}*`,
     "",
     `*Nombre:* ${datos.nombre}`,
     `*Entrega:* ${datos.destino}`,
-    `*Distrito:* ${datos.distrito}`,
+    ...(datos.destino === RECOJO
+      ? [`*Tienda:* ${TIENDA.direccion}`]
+      : [
+          `*Departamento / Provincia / Distrito:* ${datos.ubigeo.departamento} / ${datos.ubigeo.provincia} / ${datos.ubigeo.distrito}`,
+          `*Dirección:* ${datos.direccion.trim()}`,
+          ...(datos.referencia.trim() ? [`*Referencia:* ${datos.referencia.trim()}`] : []),
+          ...(datos.ubicacion ? [`*Ubicación en el mapa:* ${linkMapa(datos.ubicacion)}`] : []),
+        ]),
     `*Forma de pago:* ${datos.pago}${
       billetera(datos.pago)
         ? ` (al ${billetera(datos.pago).numero}) – envío la captura del pago`
@@ -151,13 +181,24 @@ function armarMensaje(items, subtotal, envio, datos) {
 
 export default function VistaCarrito({ actuales }) {
   const { items, cargado, total, totalUnidades, cambiarCantidad, quitar, vaciar, sincronizar } = useCarrito();
-  const [datos, setDatos] = useState({ nombre: "", destino: "", distrito: "", pago: "", notas: "" });
+  const [datos, setDatos] = useState({
+    nombre: "",
+    destino: "",
+    ubigeo: SIN_UBIGEO,
+    direccion: "",
+    referencia: "",
+    ubicacion: null,
+    pago: "",
+    notas: "",
+  });
   const [errores, setErrores] = useState({});
-  const envio = datos.destino === DESTINOS[0] ? TIENDA.envioTacna : 0;
+  const [verMapa, setVerMapa] = useState(false);
+  const envio = datos.destino === TACNA ? TIENDA.envioTacna : 0;
+  const conEnvio = datos.destino === TACNA || datos.destino === PERU;
 
-  // Contra entrega solo existe en la ciudad de Tacna
+  // Contra entrega solo en la ciudad de Tacna o al recoger en tienda
   useEffect(() => {
-    if (datos.destino === DESTINOS[1] && esContraEntrega(datos.pago)) setDatos((d) => ({ ...d, pago: "" }));
+    if (datos.destino === PERU && esContraEntrega(datos.pago)) setDatos((d) => ({ ...d, pago: "" }));
   }, [datos.destino, datos.pago]);
 
   useEffect(() => {
@@ -165,11 +206,20 @@ export default function VistaCarrito({ actuales }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cargado]);
 
-  // Recordar nombre y distrito para la próxima compra
+  // Recordar nombre y datos de entrega para la próxima compra
   useEffect(() => {
     try {
       const g = JSON.parse(localStorage.getItem(CLAVE_DATOS) || "{}");
-      setDatos((d) => ({ ...d, nombre: g.nombre || "", destino: g.destino || "", distrito: g.distrito || "", pago: g.pago || "" }));
+      setDatos((d) => ({
+        ...d,
+        nombre: g.nombre || "",
+        destino: DESTINOS.includes(g.destino) ? g.destino : "",
+        ubigeo: g.ubigeo?.departamento ? g.ubigeo : g.destino === TACNA ? UBIGEO_TACNA : SIN_UBIGEO,
+        direccion: g.direccion || "",
+        referencia: g.referencia || "",
+        ubicacion: g.ubicacion || null,
+        pago: g.pago || "",
+      }));
     } catch {}
   }, []);
 
@@ -178,17 +228,38 @@ export default function VistaCarrito({ actuales }) {
     setErrores((er) => ({ ...er, [campo]: undefined }));
   };
 
+  // Al elegir la ciudad de Tacna, departamento y provincia quedan fijos en Tacna
+  function elegirDestino(e) {
+    const destino = e.target.value;
+    setDatos((d) => {
+      if (destino === TACNA && (d.ubigeo.departamento !== "Tacna" || d.ubigeo.provincia !== "Tacna")) {
+        return { ...d, destino, ubigeo: UBIGEO_TACNA, ubicacion: null };
+      }
+      return { ...d, destino };
+    });
+    setErrores((er) => ({ ...er, destino: undefined }));
+  }
+
+  // Si cambia de distrito, el pin marcado antes ya no sirve
+  const cambiarUbigeo = (ubigeo) => {
+    setDatos((d) => ({ ...d, ubigeo, ubicacion: ubigeo.distrito === d.ubigeo.distrito ? d.ubicacion : null }));
+    setErrores((er) => ({ ...er, ubigeo: undefined }));
+  };
+  const cambiarUbicacion = (ubicacion) => setDatos((d) => ({ ...d, ubicacion }));
+
   function enviar(e) {
     e.preventDefault();
     const er = {};
     if (datos.nombre.trim().length < 2) er.nombre = "Escribe tu nombre";
     if (!datos.destino) er.destino = "Elige dónde recibes tu pedido";
-    if (datos.distrito.trim().length < 2) er.distrito = "Escribe tu distrito";
+    if (conEnvio && !datos.ubigeo.distrito) er.ubigeo = "Elige departamento, provincia y distrito";
+    if (conEnvio && datos.direccion.trim().length < 5) er.direccion = "Escribe la dirección exacta de entrega";
     if (!datos.pago) er.pago = "Elige una forma de pago";
     setErrores(er);
     if (Object.keys(er).length) return;
     try {
-      localStorage.setItem(CLAVE_DATOS, JSON.stringify({ nombre: datos.nombre, destino: datos.destino, distrito: datos.distrito, pago: datos.pago }));
+      const { nombre, destino, ubigeo, direccion, referencia, ubicacion, pago } = datos;
+      localStorage.setItem(CLAVE_DATOS, JSON.stringify({ nombre, destino, ubigeo, direccion, referencia, ubicacion, pago }));
     } catch {}
     window.open(linkWhatsApp(armarMensaje(items, total, envio, datos)), "_blank", "noopener");
   }
@@ -271,7 +342,7 @@ export default function VistaCarrito({ actuales }) {
         </ul>
       </section>
 
-      <form onSubmit={enviar} noValidate className="rounded-2xl bg-white p-4 sm:p-6 lg:sticky lg:top-36" aria-label="Datos del pedido">
+      <form onSubmit={enviar} noValidate className="rounded-2xl bg-white p-4 sm:p-6" aria-label="Datos del pedido">
         <h2 className="mb-3 text-lg font-extrabold text-marca-900">Resumen del pedido</h2>
         <dl className="space-y-1.5 text-sm">
           <div className="flex justify-between">
@@ -280,12 +351,14 @@ export default function VistaCarrito({ actuales }) {
           </div>
           <div className="flex justify-between">
             <dt className="text-gray-600">Envío</dt>
-            <dd className={datos.destino === DESTINOS[0] ? "font-semibold" : "text-right text-gray-600"}>
-              {datos.destino === DESTINOS[0]
+            <dd className={datos.destino && datos.destino !== PERU ? "font-semibold" : "text-right text-gray-600"}>
+              {datos.destino === TACNA
                 ? soles(envio)
-                : datos.destino
-                  ? "Según agencia"
-                  : `Tacna ${soles(TIENDA.envioTacna)}`}
+                : datos.destino === RECOJO
+                  ? "Gratis"
+                  : datos.destino
+                    ? "Según agencia"
+                    : `Tacna ${soles(TIENDA.envioTacna)}`}
             </dd>
           </div>
           <div className="flex justify-between border-t border-gray-100 pt-2 text-lg">
@@ -304,42 +377,113 @@ export default function VistaCarrito({ actuales }) {
           </div>
           <fieldset>
             <legend className="mb-1 text-sm font-semibold text-gray-700">¿Dónde recibes tu pedido?</legend>
-            <div className="grid grid-cols-2 gap-2">
-              {DESTINOS.map((d, n) => (
+            <div className="grid grid-cols-3 gap-2">
+              {DESTINOS.map((d) => (
                 <label
                   key={d}
-                  className={`cursor-pointer rounded-lg border px-3 py-2 text-center text-sm transition ${
+                  className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border px-1.5 py-2 text-center text-sm transition ${
                     datos.destino === d ? "border-marca-600 bg-marca-50 text-marca-800" : "border-gray-300 text-gray-700"
                   }`}
                 >
-                  <input type="radio" name="destino" value={d} checked={datos.destino === d} onChange={set("destino")} className="sr-only" />
-                  <span className="block font-semibold">{d}</span>
-                  <span className="text-xs text-gray-500">{n === 0 ? `Envío ${soles(TIENDA.envioTacna)}` : "Por agencia"}</span>
+                  <input type="radio" name="destino" value={d} checked={datos.destino === d} onChange={elegirDestino} className="sr-only" />
+                  <span className="block text-[13px] font-semibold leading-tight">{d}</span>
+                  <span className="mt-0.5 text-xs text-gray-500">{NOTA_DESTINO[d]}</span>
                 </label>
               ))}
             </div>
             {errores.destino && <p className="mt-1 text-xs text-oferta">{errores.destino}</p>}
           </fieldset>
-          <div>
-            <label htmlFor="distrito" className="mb-1 block text-sm font-semibold text-gray-700">
-              Distrito y ciudad
-            </label>
-            <input
-              id="distrito"
-              className="campo"
-              value={datos.distrito}
-              onChange={set("distrito")}
-              placeholder="Ej.: Gregorio Albarracín, Tacna"
-              autoComplete="address-level2"
-              aria-invalid={!!errores.distrito}
-            />
-            {errores.distrito && <p className="mt-1 text-xs text-oferta">{errores.distrito}</p>}
-          </div>
+
+          {datos.destino === RECOJO && (
+            // Datos de la tienda y botón para abrir la ruta en Google Maps
+            <div className="rounded-lg border border-marca-100 bg-marca-50 p-3 text-sm text-gray-700">
+              <p className="flex items-start gap-2">
+                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-oferta" aria-hidden="true" />
+                <span>
+                  <strong className="block text-marca-900">Recoge en nuestra tienda</strong>
+                  {TIENDA.direccion}
+                  <span className="mt-0.5 block text-xs text-gray-500">{TIENDA.horario}</span>
+                </span>
+              </p>
+              <a
+                href={RUTA_TIENDA}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-marca-700 px-3 py-2.5 font-semibold text-white hover:bg-marca-800"
+              >
+                <Navigation className="h-4 w-4" aria-hidden="true" /> Cómo llegar con Google Maps
+              </a>
+              <p className="mt-2 text-xs text-gray-500">Te avisaremos por WhatsApp cuando tu pedido esté listo para recoger.</p>
+            </div>
+          )}
+
+          {conEnvio && (
+            <>
+              <div>
+                <p className="mb-1 text-sm font-semibold text-gray-700">Lugar de entrega</p>
+                <SelectorUbigeo valor={datos.ubigeo} onCambio={cambiarUbigeo} fijo={datos.destino === TACNA} error={errores.ubigeo} />
+              </div>
+              <div>
+                <label htmlFor="direccion" className="mb-1 block text-sm font-semibold text-gray-700">
+                  Dirección exacta
+                </label>
+                <input
+                  id="direccion"
+                  className="campo"
+                  value={datos.direccion}
+                  onChange={set("direccion")}
+                  placeholder="Av./Calle, número, Mz. y Lt., urbanización"
+                  autoComplete="street-address"
+                  aria-invalid={!!errores.direccion}
+                />
+                {errores.direccion && <p className="mt-1 text-xs text-oferta">{errores.direccion}</p>}
+              </div>
+              <div>
+                <label htmlFor="referencia" className="mb-1 block text-sm font-semibold text-gray-700">
+                  Referencia <span className="font-normal text-gray-400">(opcional)</span>
+                </label>
+                <input
+                  id="referencia"
+                  className="campo"
+                  value={datos.referencia}
+                  onChange={set("referencia")}
+                  placeholder="Ej.: frente al parque, portón negro"
+                />
+              </div>
+              <div>
+                <p className="mb-1 text-sm font-semibold text-gray-700">
+                  Ubicación en el mapa <span className="font-normal text-gray-400">(opcional, para llegar más rápido)</span>
+                </p>
+                {verMapa ? (
+                  <MapaUbicacion valor={datos.ubicacion} centro={datos.ubigeo.centro} onCambio={cambiarUbicacion} />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setVerMapa(true)}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-marca-300 px-3 py-2.5 text-sm font-semibold text-marca-700 hover:bg-marca-50"
+                  >
+                    <MapPin className="h-4 w-4" aria-hidden="true" />
+                    {datos.ubicacion ? "Ubicación marcada · cambiarla en el mapa" : "Marcar mi ubicación en el mapa"}
+                  </button>
+                )}
+                {datos.ubicacion && (
+                  <div className="mt-1 flex items-center justify-between gap-2 text-xs">
+                    <a href={linkMapa(datos.ubicacion)} target="_blank" rel="noopener noreferrer" className="font-semibold text-marca-700 hover:underline">
+                      Ver en Google Maps
+                    </a>
+                    <button type="button" onClick={() => cambiarUbicacion(null)} className="text-gray-500 hover:text-oferta">
+                      Quitar ubicación
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
           <fieldset>
             <legend className="mb-1 text-sm font-semibold text-gray-700">Forma de pago</legend>
             <div className="grid grid-cols-2 gap-2">
               {TIENDA.formasPago.map((f) => {
-                const bloqueado = esContraEntrega(f) && datos.destino === DESTINOS[1];
+                const bloqueado = esContraEntrega(f) && datos.destino === PERU;
                 return (
                   <label
                     key={f}
@@ -353,7 +497,7 @@ export default function VistaCarrito({ actuales }) {
                   >
                     <input type="radio" name="pago" value={f} checked={datos.pago === f} onChange={set("pago")} disabled={bloqueado} className="sr-only" />
                     {f}
-                    {esContraEntrega(f) && <span className="block text-[11px] font-normal text-gray-500">Solo ciudad de Tacna</span>}
+                    {esContraEntrega(f) && <span className="block text-[11px] font-normal text-gray-500">Tacna o recojo en tienda</span>}
                   </label>
                 );
               })}
@@ -365,7 +509,7 @@ export default function VistaCarrito({ actuales }) {
             <label htmlFor="notas" className="mb-1 block text-sm font-semibold text-gray-700">
               Comentarios <span className="font-normal text-gray-400">(opcional)</span>
             </label>
-            <textarea id="notas" rows={2} className="campo" value={datos.notas} onChange={set("notas")} placeholder="Referencia, horario de entrega, factura…" />
+            <textarea id="notas" rows={2} className="campo" value={datos.notas} onChange={set("notas")} placeholder="Horario de entrega, factura con RUC…" />
           </div>
         </div>
 
