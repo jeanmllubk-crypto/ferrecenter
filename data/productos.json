@@ -1,0 +1,262 @@
+{
+  "generado": "2026-10-25T08:27:00.394Z",
+  "productos": [
+    {
+      "sku": "TRU-TAL-001",
+      "slug": "taladro-percutor-1-2-650-w-tru-tal-001",
+      "nombre": "Taladro percutor 1/2\" 650 W",
+      "marca": "Truper",
+      "marcaSlug": "truper",
+      "categoria": "Herramientas eléctricas",
+      "categoriaSlug": "herramientas-electricas",
+      "subcategoria": "Taladros",
+      "subcategoriaSlug": "taladros",
+      "modelo": "TALI-650",
+      "descripcion": "Taladro percutor para concreto, madera y metal.",
+      "descripcionLarga": [
+        "Taladro percutor de 650 W ideal para perforar concreto, ladrillo, madera y metal. Su función de percusión facilita el trabajo en superficies duras, y el giro reversible permite atornillar y destornillar con comodidad.",
+        "Tiene mandril de 1/2\" para brocas de distintos tamaños y velocidad variable de 0 a 3000 rpm para controlar cada perforación. Perfecto para instalaciones, remodelaciones y mantenimiento en casa, taller u obra.",
+        "Recomendación: usa lentes de protección y guantes durante el trabajo."
+      ],
+      "especificaciones": [
+        {
+          "nombre": "",
+          "valor": "650 W"
+        },
+        {
+          "nombre": "",
+          "valor": "0-3000 rpm"
+        },
+        {
+          "nombre": "",
+          "valor": "mandril 1/2\""
+        },
+        {
+          "nombre": "",
+          "valor": "reversible"
+        }
+      ],
+      "unidad": "Unidad",
+      "precio": 219,
+      "precioOferta": 199,
+      "precioFinal": 199,
+      "descuento": 9,
+      "stock": 12,
+      "garantia": "6 meses",
+      "peso": 1.9,
+      "imagenes": [
+        "/productos/TRU-TAL-001.jpg"
+      ],
+      "tamanos": [
+        {
+          "ancho": 1200,
+          "alto": 1200
+        }
+      ],
+      "destacado": true,
+      "orden": 4
+    },
+    {
+      "sku": "TOT-AMO-001",
+      "slug": "amoladora-angular-4-1-2-750-w-tot-amo-001",
+      "nombre": "Amoladora angular 4 1/2\" 750 W",
+      "marca": "Total",
+      "marcaSlug": "total",
+      "categoria": "Herramientas eléctricas",
+      "categoriaSlug": "herramientas-electricas",
+      "subcategoria": "Amoladoras",
+      "subcategoriaSlug": "amoladoras",
+      "modelo": "TG10711556",
+      "descripcion": "Amoladora para corte y desbaste de metal y concreto.",
+      "descripcionLarga": [
+        "Amoladora angular de 750 W para cortar y desbastar metal, concreto, cerámica y piedra con discos de 4 1/2\" (115 mm). Su motor de 11 000 rpm ofrece cortes rápidos y precisos.",
+        "Cuenta con mango lateral para un mejor control y guarda de protección. Ideal para metalmecánica, construcción y mantenimiento.",
+        "Recomendación: usa siempre lentes o careta de protección, guantes y el disco adecuado para cada material."
+      ],
+      "especificaciones": [
+        {
+          "nombre": "",
+          "valor": "750 W"
+        },
+        {
+          "nombre": "",
+          "valor": "11000 rpm"
+        },
+        {
+          "nombre": "",
+          "valor": "disco 115 mm"
+        }
+      ],
+      "unidad": "Unidad",
+      "precio": 169,
+      "precioOferta": null,
+      "precioFinal": 169,
+      "descuento": 0,
+      "stock": 8,
+      "garantia": "6 meses",
+      "peso": 1.8,
+      "imagenes": [
+        "/productos/TOT-AMO-001.jpg"
+      ],
+      "tamanos": [
+        {
+          "ancho": 1200,
+          "alto": 1200
+        }
+      ],
+      "destacado": false,
+      "orden": 5
+    },
+    {
+      "sku": "UYU-ALI-001",
+      "slug": "alicate-universal-8-uyu-ali-001",
+      "nombre": "Alicate universal 8\"",
+      "marca": "Uyustools",
+      "marcaSlug": "uyustools",
+      "categoria": "Herramientas manuales",
+      "categoriaSlug": "herramientas-manuales",
+      "subcategoria": "Alicates",
+      "subcategoriaSlug": "alicates",
+      "modelo": "ALU8D15",
+      "descripcion": "Alicate universal de 8\" con cuerpo forjado, filos endurecidos y mango ergonómico de PVC antideslizante.",
+      "descripcionLarga": [
+        "Alicate universal de 8\" fabricado en acero alto carbono, con cuerpo forjado y filos endurecidos para cortar, sujetar, doblar y torcer alambres y cables.",
+        "Sus mangos ergonómicos de PVC bicolor brindan un agarre firme y cómodo durante el uso prolongado. Una herramienta básica para electricistas, mecánicos, técnicos y el hogar.",
+        "Importante: el mango no está aislado; no lo uses en circuitos con corriente eléctrica."
+      ],
+      "especificaciones": [
+        {
+          "nombre": "",
+          "valor": "Acero alto carbono #45"
+        },
+        {
+          "nombre": "Largo",
+          "valor": "200 mm (8\")"
+        },
+        {
+          "nombre": "",
+          "valor": "Mango de PVC bicolor antideslizante"
+        },
+        {
+          "nombre": "",
+          "valor": "Filos endurecidos"
+        }
+      ],
+      "unidad": "Unidad",
+      "precio": 25,
+      "precioOferta": null,
+      "precioFinal": 25,
+      "descuento": 0,
+      "stock": 30,
+      "garantia": "3 meses",
+      "peso": 0.35,
+      "imagenes": [
+        "/productos/UYU-ALI-001.jpg"
+      ],
+      "tamanos": [
+        {
+          "ancho": 1000,
+          "alto": 1000
+        }
+      ],
+      "destacado": false,
+      "orden": 6
+    }
+  ],
+  "categorias": [
+    {
+      "nombre": "Herramientas eléctricas",
+      "slug": "herramientas-electricas",
+      "cantidad": 2,
+      "subcategorias": [
+        {
+          "nombre": "Taladros",
+          "slug": "taladros",
+          "cantidad": 1
+        },
+        {
+          "nombre": "Amoladoras",
+          "slug": "amoladoras",
+          "cantidad": 1
+        }
+      ]
+    },
+    {
+      "nombre": "Herramientas manuales",
+      "slug": "herramientas-manuales",
+      "cantidad": 1,
+      "subcategorias": [
+        {
+          "nombre": "Alicates",
+          "slug": "alicates",
+          "cantidad": 1
+        }
+      ]
+    },
+    {
+      "nombre": "Medición",
+      "slug": "medicion",
+      "cantidad": 0,
+      "subcategorias": []
+    },
+    {
+      "nombre": "Jardinería",
+      "slug": "jardineria",
+      "cantidad": 0,
+      "subcategorias": []
+    },
+    {
+      "nombre": "Construcción y albañilería",
+      "slug": "construccion-y-albanileria",
+      "cantidad": 0,
+      "subcategorias": []
+    },
+    {
+      "nombre": "Gasfitería",
+      "slug": "gasfiteria",
+      "cantidad": 0,
+      "subcategorias": []
+    },
+    {
+      "nombre": "Electricidad",
+      "slug": "electricidad",
+      "cantidad": 0,
+      "subcategorias": []
+    },
+    {
+      "nombre": "Seguridad (EPP)",
+      "slug": "seguridad-epp",
+      "cantidad": 0,
+      "subcategorias": []
+    },
+    {
+      "nombre": "Accesorios y consumibles",
+      "slug": "accesorios-y-consumibles",
+      "cantidad": 0,
+      "subcategorias": []
+    },
+    {
+      "nombre": "Almacenamiento",
+      "slug": "almacenamiento",
+      "cantidad": 0,
+      "subcategorias": []
+    }
+  ],
+  "marcas": [
+    {
+      "nombre": "Truper",
+      "slug": "truper",
+      "cantidad": 1
+    },
+    {
+      "nombre": "Total",
+      "slug": "total",
+      "cantidad": 1
+    },
+    {
+      "nombre": "Uyustools",
+      "slug": "uyustools",
+      "cantidad": 1
+    }
+  ]
+}

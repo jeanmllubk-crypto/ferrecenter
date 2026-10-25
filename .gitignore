@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+.vercel
+*.log
+~$*.xlsx
+.env*.local
+.env
+.next-prod
+respaldos/
+.claude/settings.local.json

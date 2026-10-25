@@ -1,0 +1,7 @@
+Imágenes de pago que usa el carrito:
+
+  yape-qr.jpeg / plin-qr.jpeg                 → imagen original (se abre al tocar el QR)
+  yape-qr-codigo.jpeg / plin-qr-codigo.jpeg   → solo el código QR recortado (se muestra en el carrito)
+
+Si cambias tus QR, reemplaza estos archivos (o pide que se recorten de nuevo).
+Las rutas se configuran en lib/config.js (sección "pagos").
