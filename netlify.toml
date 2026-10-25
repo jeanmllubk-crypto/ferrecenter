@@ -1,0 +1,9 @@
+# Configuración de publicación en Netlify.
+# "npm run build" lee el Excel (npm run productos) y luego compila la web.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
