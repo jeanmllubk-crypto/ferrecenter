@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BookOpen, Clock, Mail, MapPin, Phone, ShieldCheck, Truck, RefreshCw, CreditCard } from "lucide-react";
 import Logo from "./Logo";
+import LogoPago from "./LogoPago";
 import { IconoFacebook, IconoInstagram, IconoTiktok, IconoWhatsApp } from "./IconosSociales";
 import { linkWhatsApp, TIENDA } from "@/lib/config";
 
@@ -128,7 +129,8 @@ export default function Footer({ categorias }) {
             <p className="mb-2 text-xs font-bold uppercase tracking-wide text-marca-200">Formas de pago</p>
             <ul className="flex flex-wrap gap-2">
               {TIENDA.formasPago.map((f) => (
-                <li key={f} className="rounded-md bg-white px-3 py-1 text-xs font-bold text-marca-900">
+                <li key={f} className="flex h-9 items-center gap-2 rounded-lg bg-white pl-1 pr-3 text-xs font-bold text-marca-900">
+                  <LogoPago forma={f} tamano="h-7 w-7" />
                   {f}
                 </li>
               ))}
