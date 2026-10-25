@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { MapPin, Minus, Navigation, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { HandCoins, Landmark, MapPin, Minus, Navigation, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useCarrito } from "./CarritoContext";
 import { IconoWhatsApp } from "./IconosSociales";
 import { linkWhatsApp, TIENDA } from "@/lib/config";
@@ -33,6 +33,26 @@ const SIN_UBIGEO = { departamento: "", provincia: "", distrito: "", centro: null
 const UBIGEO_TACNA = { departamento: "Tacna", provincia: "Tacna", distrito: "", centro: COORDS_TIENDA.split(",").map(Number) };
 // Yape / Plin → sus datos de config; si no, null
 const billetera = (f) => TIENDA.pagos[String(f).toLowerCase()] || null;
+
+// Logo de cada forma de pago: Yape y Plin con su logo oficial; transferencia y contra entrega con ícono
+function LogoPago({ forma, apagado }) {
+  const logo = billetera(forma)?.logo;
+  const caja = `flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl ${apagado ? "opacity-40 grayscale" : ""}`;
+  if (logo) {
+    return (
+      <span className={`${caja} border border-gray-200`}>
+        <img src={logo} alt="" className="h-full w-full object-cover" />
+      </span>
+    );
+  }
+  const Icono = /transferencia/i.test(forma) ? Landmark : HandCoins;
+  const color = /transferencia/i.test(forma) ? "bg-marca-700" : "bg-acento-500";
+  return (
+    <span className={`${caja} ${color} text-white`}>
+      <Icono className="h-5 w-5" aria-hidden="true" />
+    </span>
+  );
+}
 
 function BotonCopiar({ valor }) {
   const [copiado, setCopiado] = useState(false);
@@ -487,7 +507,7 @@ export default function VistaCarrito({ actuales }) {
                 return (
                   <label
                     key={f}
-                    className={`rounded-lg border px-3 py-2.5 text-center text-sm font-semibold transition ${
+                    className={`flex items-center gap-2.5 rounded-lg border px-2.5 py-2 text-left text-sm font-semibold transition ${
                       bloqueado
                         ? "cursor-not-allowed border-gray-200 text-gray-400"
                         : datos.pago === f
@@ -496,8 +516,11 @@ export default function VistaCarrito({ actuales }) {
                     }`}
                   >
                     <input type="radio" name="pago" value={f} checked={datos.pago === f} onChange={set("pago")} disabled={bloqueado} className="sr-only" />
-                    {f}
-                    {esContraEntrega(f) && <span className="block text-[11px] font-normal text-gray-500">Tacna o recojo en tienda</span>}
+                    <LogoPago forma={f} apagado={bloqueado} />
+                    <span className="min-w-0 leading-tight">
+                      {f}
+                      {esContraEntrega(f) && <span className="block text-[11px] font-normal text-gray-500">Tacna o recojo en tienda</span>}
+                    </span>
                   </label>
                 );
               })}
