@@ -20,7 +20,6 @@ export default function LogoMarca({ marca, className = "h-12", compacto = false 
         src={logo.src}
         alt={marca.nombre}
         className={`${logo.lleno ? "h-full rounded-md" : compacto ? "max-h-[62%]" : "max-h-[70%]"} w-auto max-w-full object-contain`}
-        loading="lazy"
       />
     </span>
   );
