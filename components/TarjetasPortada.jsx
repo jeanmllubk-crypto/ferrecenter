@@ -78,7 +78,9 @@ export default function TarjetasPortada({ diseno = "producto", oferta, ofertas =
 
   if (diseno === "icono") {
     return (
-      <div className="hidden flex-col gap-4 lg:flex">
+      // Celular: las dos tarjetas lado a lado debajo del carrusel, solo con el sello.
+      // Tablet: lado a lado con fotos y logos. Computadora: en columna junto al carrusel.
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:flex lg:flex-col">
         <Link
           href="/catalogo?oferta=1"
           className={`${base} items-center justify-center bg-[radial-gradient(circle_at_45%_40%,#3b82f6,#1d4ed8_45%,#0b2a6b)] p-3`}
@@ -88,19 +90,23 @@ export default function TarjetasPortada({ diseno = "producto", oferta, ofertas =
           <span className="pointer-events-none absolute -right-1/4 top-0 h-[200%] w-1/2 rotate-[35deg] bg-white/10" aria-hidden="true" />
           {fotosOfertas.length > 0 ? (
             // Con productos en oferta: sello a la izquierda y sus fotos rotando a la derecha
-            <span className="relative flex w-full items-center justify-between gap-2">
+            <span className="relative flex w-full items-center justify-center gap-2 sm:justify-between">
               <span className="flex flex-col items-center gap-1.5">
-                <span className="[zoom:0.7]">
+                <span className="[zoom:0.55] sm:[zoom:0.7]">
                   <Insignia tono="azul" figura={<PersonajeOfertas />} arriba="Ofertas" conector="del" abajo="Día" moneda="S/." />
                 </span>
                 <span className="flex items-center text-xs font-semibold group-hover:underline">
                   Ver ofertas <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </span>
               </span>
-              <RotadorOfertas productos={fotosOfertas} />
+              <span className="hidden sm:block">
+                <RotadorOfertas productos={fotosOfertas} />
+              </span>
             </span>
           ) : (
-            <Insignia tono="azul" figura={<PersonajeOfertas />} arriba="Ofertas" conector="del" abajo="Día" moneda="S/." />
+            <span className="relative [zoom:0.55] sm:[zoom:0.7]">
+              <Insignia tono="azul" figura={<PersonajeOfertas />} arriba="Ofertas" conector="del" abajo="Día" moneda="S/." />
+            </span>
           )}
           {!fotosOfertas.length && oferta?.descuento > 0 && (
             <span className="absolute right-2 top-3 rotate-12 rounded-full bg-oferta px-2.5 py-1 text-center text-[10px] font-bold leading-tight shadow-lg">
@@ -123,16 +129,16 @@ export default function TarjetasPortada({ diseno = "producto", oferta, ofertas =
         >
           <span className="pointer-events-none absolute -right-1/4 top-0 h-[200%] w-1/2 rotate-[35deg] bg-white/10" aria-hidden="true" />
           {/* Sello a la izquierda y los logos de las marcas rotando a la derecha */}
-          <span className="relative flex w-full items-center justify-between gap-2">
+          <span className="relative flex w-full items-center justify-center gap-2 sm:justify-between">
             <span className="flex flex-col items-center gap-1.5">
-              <span className="[zoom:0.7]">
+              <span className="[zoom:0.55] sm:[zoom:0.7]">
                 <Insignia tono="verde" figura={<PersonajeCajas />} arriba="Compras" conector="por" abajo="Mayor" moneda={<Truck className="h-3.5 w-3.5" strokeWidth={2.5} />} />
               </span>
               <span className="flex items-center text-xs font-semibold group-hover:underline">
                 Cotizar <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
               </span>
             </span>
-            <span className="flex flex-col items-center gap-2">
+            <span className="hidden flex-col items-center gap-2 sm:flex">
               <span className="rotate-[-4deg] rounded-full bg-acento-500 px-2 py-1 text-center text-[10px] font-bold leading-tight shadow-lg">
                 Precios especiales en
               </span>
