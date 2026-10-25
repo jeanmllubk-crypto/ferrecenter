@@ -1,5 +1,5 @@
 {
-  "generado": "2026-10-25T08:27:00.394Z",
+  "generado": "2026-10-25T13:52:31.885Z",
   "productos": [
     {
       "sku": "TRU-TAL-001",
@@ -161,6 +161,64 @@
       ],
       "destacado": false,
       "orden": 6
+    },
+    {
+      "sku": "TRU-CAS-001",
+      "slug": "casco-de-seguridad-con-ratchet-blanco-tru-cas-001",
+      "nombre": "Casco de seguridad con ratchet blanco",
+      "marca": "Truper",
+      "marcaSlug": "truper",
+      "categoria": "Seguridad (EPP)",
+      "categoriaSlug": "seguridad-epp",
+      "subcategoria": "Cascos",
+      "subcategoriaSlug": "cascos",
+      "modelo": "CAS-B",
+      "descripcion": "Casco de seguridad tipo jockey con ajuste ratchet.",
+      "descripcionLarga": [
+        "Casco de seguridad tipo jockey fabricado en polietileno de alta densidad, liviano y resistente a impactos. Ideal para obras de construcción, talleres e industria.",
+        "Su sistema de ajuste ratchet permite regularlo rápidamente a la medida de la cabeza, incluso con guantes puestos.",
+        "- Suspensión de 6 puntos para mayor comodidad",
+        "- Ranuras laterales para accesorios (orejeras o careta)",
+        "- Banda de sudor reemplazable",
+        "Recomendación: reemplaza el casco si recibe un golpe fuerte o presenta fisuras."
+      ],
+      "especificaciones": [
+        {
+          "nombre": "Material",
+          "valor": "polietileno de alta densidad"
+        },
+        {
+          "nombre": "Ajuste",
+          "valor": "ratchet de 6 puntos"
+        },
+        {
+          "nombre": "Color",
+          "valor": "blanco"
+        },
+        {
+          "nombre": "Uso",
+          "valor": "construcción e industria"
+        }
+      ],
+      "unidad": "Unidad",
+      "precio": 25,
+      "precioOferta": 22,
+      "precioFinal": 22,
+      "descuento": 12,
+      "stock": 40,
+      "garantia": "3 meses",
+      "peso": 0.4,
+      "imagenes": [
+        "/productos/TRU-CAS-001.jpg"
+      ],
+      "tamanos": [
+        {
+          "ancho": 1200,
+          "alto": 1200
+        }
+      ],
+      "destacado": true,
+      "orden": 7
     }
   ],
   "categorias": [
@@ -226,8 +284,14 @@
     {
       "nombre": "Seguridad (EPP)",
       "slug": "seguridad-epp",
-      "cantidad": 0,
-      "subcategorias": []
+      "cantidad": 1,
+      "subcategorias": [
+        {
+          "nombre": "Cascos",
+          "slug": "cascos",
+          "cantidad": 1
+        }
+      ]
     },
     {
       "nombre": "Accesorios y consumibles",
@@ -240,13 +304,19 @@
       "slug": "almacenamiento",
       "cantidad": 0,
       "subcategorias": []
+    },
+    {
+      "nombre": "Protección colectiva",
+      "slug": "proteccion-colectiva",
+      "cantidad": 0,
+      "subcategorias": []
     }
   ],
   "marcas": [
     {
       "nombre": "Truper",
       "slug": "truper",
-      "cantidad": 1
+      "cantidad": 2
     },
     {
       "nombre": "Total",
