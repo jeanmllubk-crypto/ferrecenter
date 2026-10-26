@@ -1,5 +1,5 @@
 {
-  "generado": "2026-10-25T23:46:22.375Z",
+  "generado": "2026-10-26T04:57:08.585Z",
   "productos": [
     {
       "sku": "TRU-TAL-001",
@@ -147,7 +147,7 @@
       "precioOferta": null,
       "precioFinal": 25,
       "descuento": 0,
-      "stock": 30,
+      "stock": 31,
       "garantia": "3 meses",
       "peso": 0.35,
       "imagenes": [
@@ -219,18 +219,106 @@
       ],
       "destacado": true,
       "orden": 7
+    },
+    {
+      "sku": "STA-KIT-001",
+      "slug": "kit-taladro-percutor-atornillador-de-impacto-brushless-18v-v20-sta-kit-001",
+      "nombre": "Kit taladro percutor + atornillador de impacto brushless 18V V20",
+      "marca": "Stanley",
+      "marcaSlug": "stanley",
+      "categoria": "Herramientas eléctricas",
+      "categoriaSlug": "herramientas-electricas",
+      "subcategoria": "Taladros",
+      "subcategoriaSlug": "taladros",
+      "modelo": "SFMCK211D2T",
+      "descripcion": "Kit inalámbrico FatMax V20 con taladro percutor y atornillador de impacto sin carbones, 2 baterías y maletín.",
+      "descripcionLarga": [
+        "Kit inalámbrico Stanley FatMax V20 de 18 V que reúne dos herramientas esenciales: un taladro percutor y un atornillador de impacto, ambos con motor brushless (sin carbones), que entrega más potencia, mayor duración de la batería y menos mantenimiento.",
+        "El taladro percutor ofrece hasta 80 Nm de torque, portabrocas metálico de 13 mm y dos velocidades para perforar concreto, ladrillo, madera y metal, o atornillar con precisión. El atornillador de impacto alcanza 203 Nm con tres velocidades, ideal para tornillos largos, pernos y fijaciones exigentes.",
+        "- Motores brushless: más eficiencia y vida útil",
+        "- Taladro con 15 + 2 posiciones de torque y función de percusión",
+        "- Atornillador de impacto con 3 velocidades y porta puntas de 1/4\"",
+        "- Incluye 2 baterías Li-Ion 18 V de 2 Ah, cargador de 2 A y maletín Pro-Stack",
+        "- Baterías compatibles con las demás herramientas de la línea V20",
+        "Recomendación: usa lentes de protección y guantes; elige la velocidad baja para atornillar y la alta para perforar."
+      ],
+      "especificaciones": [
+        {
+          "nombre": "Línea",
+          "valor": "Stanley FatMax V20 (18 V)"
+        },
+        {
+          "nombre": "Taladro percutor",
+          "valor": "motor brushless, torque máx. 80 Nm"
+        },
+        {
+          "nombre": "Portabrocas",
+          "valor": "metálico de 13 mm (1/2\")"
+        },
+        {
+          "nombre": "Velocidades del taladro",
+          "valor": "2 (0-500 / 0-2000 rpm)"
+        },
+        {
+          "nombre": "Percusión",
+          "valor": "0-5950 / 0-25 500 ipm"
+        },
+        {
+          "nombre": "Posiciones de torque",
+          "valor": "15 + 2 (taladro y percusión)"
+        },
+        {
+          "nombre": "Atornillador de impacto",
+          "valor": "motor brushless, torque máx. 203 Nm"
+        },
+        {
+          "nombre": "Porta puntas",
+          "valor": "hexagonal de 1/4\""
+        },
+        {
+          "nombre": "Velocidades del atornillador",
+          "valor": "3 (1400 / 2400 / 3200 rpm)"
+        },
+        {
+          "nombre": "Impactos por minuto",
+          "valor": "4200 ipm"
+        },
+        {
+          "nombre": "Incluye",
+          "valor": "2 baterías Li-Ion 18 V de 2 Ah, cargador de 2 A y maletín Pro-Stack"
+        }
+      ],
+      "unidad": "Kit",
+      "precio": 720,
+      "precioOferta": 700,
+      "precioFinal": 700,
+      "descuento": 3,
+      "stock": 10,
+      "garantia": "1 año",
+      "peso": 2.2,
+      "imagenes": [
+        "/productos/STA-KIT-001.jpg"
+      ],
+      "tamanos": [
+        {
+          "ancho": 1500,
+          "alto": 1500
+        }
+      ],
+      "destacado": true,
+      "orden": 8
     }
   ],
   "categorias": [
     {
       "nombre": "Herramientas eléctricas",
       "slug": "herramientas-electricas",
-      "cantidad": 2,
+      "cantidad": 3,
       "subcategorias": [
         {
           "nombre": "Taladros",
           "slug": "taladros",
-          "cantidad": 1
+          "cantidad": 2
         },
         {
           "nombre": "Amoladoras",
@@ -326,6 +414,11 @@
     {
       "nombre": "Uyustools",
       "slug": "uyustools",
+      "cantidad": 1
+    },
+    {
+      "nombre": "Stanley",
+      "slug": "stanley",
       "cantidad": 1
     }
   ]
