@@ -56,6 +56,18 @@ export default function Catalogo({ productos, categorias, marcas, fijo = {} }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const [panel, setPanel] = useState(false);
+  // Alto del encabezado fijo: la columna de filtros se pega justo debajo al bajar
+  const [altoHeader, setAltoHeader] = useState(144);
+
+  useEffect(() => {
+    const header = document.querySelector("header.sticky");
+    if (!header) return;
+    const medir = () => setAltoHeader(header.offsetHeight);
+    medir();
+    const ro = new ResizeObserver(medir);
+    ro.observe(header);
+    return () => ro.disconnect();
+  }, []);
 
   const q = params.get("q") || "";
   const selMarcas = fijo.marca ? [fijo.marca] : lista(params.get("marca"));
@@ -160,50 +172,53 @@ export default function Catalogo({ productos, categorias, marcas, fijo = {} }) {
 
   const limpiar = () => router.replace(pathname, { scroll: false });
 
-  const filtros = (
-    <>
-      {!fijo.categoria && (
-        <Grupo titulo="Categoría">
-          {categorias
-            .filter((c) => c.cantidad > 0)
-            .map((c) => (
-              <Opcion
-                key={c.slug}
-                texto={c.nombre}
-                cantidad={conteoCategorias[c.slug] || 0}
-                marcado={selCategorias.includes(c.slug)}
-                alCambiar={() => actualizar({ categoria: alternar(selCategorias, c.slug), sub: "" })}
-              />
-            ))}
-        </Grupo>
-      )}
-      {subcategorias.length > 0 && (
-        <Grupo titulo="Subcategoría">
-          {subcategorias.map((s) => (
-            <Opcion
-              key={s.slug}
-              texto={s.nombre}
-              cantidad={conteoSubs[s.slug] || 0}
-              marcado={selSubs.includes(s.slug)}
-              alCambiar={() => actualizar({ sub: alternar(selSubs, s.slug) })}
-            />
-          ))}
-        </Grupo>
-      )}
-      {!fijo.marca && (
-        <Grupo titulo="Marca">
-          {marcas.map((m) => (
-            <Opcion
-              key={m.slug}
-              texto={m.nombre}
-              cantidad={conteoMarcas[m.slug] || 0}
-              marcado={selMarcas.includes(m.slug)}
-              alCambiar={() => actualizar({ marca: alternar(selMarcas, m.slug) })}
-            />
-          ))}
-        </Grupo>
-      )}
-      <Grupo titulo="Precio">
+  const grupos = [
+    !fijo.categoria && {
+      id: "categoria",
+      titulo: "Categoría",
+      cuerpo: categorias
+        .filter((c) => c.cantidad > 0)
+        .map((c) => (
+          <Opcion
+            key={c.slug}
+            texto={c.nombre}
+            cantidad={conteoCategorias[c.slug] || 0}
+            marcado={selCategorias.includes(c.slug)}
+            alCambiar={() => actualizar({ categoria: alternar(selCategorias, c.slug), sub: "" })}
+          />
+        )),
+    },
+    subcategorias.length > 0 && {
+      id: "sub",
+      titulo: "Subcategoría",
+      cuerpo: subcategorias.map((s) => (
+        <Opcion
+          key={s.slug}
+          texto={s.nombre}
+          cantidad={conteoSubs[s.slug] || 0}
+          marcado={selSubs.includes(s.slug)}
+          alCambiar={() => actualizar({ sub: alternar(selSubs, s.slug) })}
+        />
+      )),
+    },
+    !fijo.marca && {
+      id: "marca",
+      titulo: "Marca",
+      cuerpo: marcas.map((m) => (
+        <Opcion
+          key={m.slug}
+          texto={m.nombre}
+          cantidad={conteoMarcas[m.slug] || 0}
+          marcado={selMarcas.includes(m.slug)}
+          alCambiar={() => actualizar({ marca: alternar(selMarcas, m.slug) })}
+        />
+      )),
+    },
+    {
+      id: "precio",
+      titulo: "Precio",
+      cuerpo: (
+        <>
         {RANGOS.map((r) => (
           <Opcion
             key={r.texto}
@@ -246,18 +261,86 @@ export default function Catalogo({ productos, categorias, marcas, fijo = {} }) {
             <ChevronRight className="h-4 w-4" />
           </button>
         </form>
-      </Grupo>
-      <Grupo titulo="Disponibilidad">
-        <Opcion texto="Solo ofertas" marcado={soloOferta} alCambiar={() => actualizar({ oferta: soloOferta ? "" : "1" })} />
-        <Opcion texto="Solo con stock" marcado={soloStock} alCambiar={() => actualizar({ stock: soloStock ? "" : "1" })} />
-      </Grupo>
-    </>
+        </>
+      ),
+    },
+    {
+      id: "disponibilidad",
+      titulo: "Disponibilidad",
+      cuerpo: (
+        <>
+          <Opcion texto="Solo ofertas" marcado={soloOferta} alCambiar={() => actualizar({ oferta: soloOferta ? "" : "1" })} />
+          <Opcion texto="Solo con stock" marcado={soloStock} alCambiar={() => actualizar({ stock: soloStock ? "" : "1" })} />
+        </>
+      ),
+    },
+  ].filter(Boolean);
+
+  const filtros = grupos.map((g) => (
+    <Grupo key={g.id} titulo={g.titulo}>
+      {g.cuerpo}
+    </Grupo>
+  ));
+
+  const conteo = (
+    <p className="text-sm text-gray-600">
+      <strong className="text-gray-900">{resultado.length}</strong> {resultado.length === 1 ? "producto" : "productos"}
+    </p>
+  );
+
+  const selectorOrden = (
+    <label className="flex flex-1 items-center gap-2 lg:flex-none">
+      <span className="hidden text-sm text-gray-600 sm:inline">Ordenar por</span>
+      <select
+        value={orden}
+        onChange={(e) => actualizar({ orden: e.target.value === "relevancia" ? "" : e.target.value })}
+        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-800 lg:w-auto"
+        aria-label="Ordenar productos"
+      >
+        {ORDENES.map((o) => (
+          <option key={o.valor} value={o.valor}>
+            {o.texto}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+
+  const botonMovil = (
+    <button
+      onClick={() => setPanel(true)}
+      className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-800 lg:hidden"
+    >
+      <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> Filtrar
+      {chips.length > 0 && <span className="rounded-full bg-marca-700 px-1.5 text-xs text-white">{chips.length}</span>}
+    </button>
+  );
+
+  const etiquetas = chips.length > 0 && (
+    <div className="flex flex-wrap items-center gap-2">
+      {chips.map((c) => (
+        <button
+          key={c.texto}
+          onClick={c.quitar}
+          className="flex items-center gap-1 rounded-full bg-marca-100 px-3 py-1 text-xs font-semibold text-marca-800 hover:bg-marca-200"
+        >
+          {c.texto} <X className="h-3.5 w-3.5" aria-label="Quitar filtro" />
+        </button>
+      ))}
+      <button onClick={limpiar} className="px-2 text-xs font-semibold text-gray-600 underline">
+        Limpiar todo
+      </button>
+    </div>
   );
 
   return (
     <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
       <aside className="hidden lg:block" aria-label="Filtros">
-        <div className="sticky top-36 rounded-xl border border-gray-200 bg-white p-4">
+        {/* Se queda fija debajo del encabezado al bajar; si los filtros no caben, se desplazan dentro */}
+        <div
+          className="sticky overflow-y-auto overscroll-contain rounded-xl border border-gray-200 bg-white p-4"
+          style={{ top: altoHeader + 16, maxHeight: `calc(100vh - ${altoHeader + 32}px)` }}
+        >
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-bold text-gray-900">Filtrar por</h2>
             {chips.length > 0 && (
@@ -272,53 +355,12 @@ export default function Catalogo({ productos, categorias, marcas, fijo = {} }) {
 
       <div className="min-w-0">
         <div className="mb-3 flex items-center gap-2">
-          <button
-            onClick={() => setPanel(true)}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-800 lg:hidden"
-          >
-            <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> Filtrar
-            {chips.length > 0 && <span className="rounded-full bg-marca-700 px-1.5 text-xs text-white">{chips.length}</span>}
-          </button>
-          <p className="hidden text-sm text-gray-600 lg:block">
-            <strong className="text-gray-900">{resultado.length}</strong> {resultado.length === 1 ? "producto" : "productos"}
-          </p>
-          <label className="flex flex-1 items-center gap-2 lg:ml-auto lg:flex-none">
-            <span className="hidden text-sm text-gray-600 sm:inline">Ordenar por</span>
-            <select
-              value={orden}
-              onChange={(e) => actualizar({ orden: e.target.value === "relevancia" ? "" : e.target.value })}
-              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-800 lg:w-auto"
-              aria-label="Ordenar productos"
-            >
-              {ORDENES.map((o) => (
-                <option key={o.valor} value={o.valor}>
-                  {o.texto}
-                </option>
-              ))}
-            </select>
-          </label>
+          {botonMovil}
+          <span className="hidden lg:block">{conteo}</span>
+          <div className="flex flex-1 lg:ml-auto lg:flex-none">{selectorOrden}</div>
         </div>
-
-        <p className="mb-2 text-sm text-gray-600 lg:hidden">
-          <strong className="text-gray-900">{resultado.length}</strong> {resultado.length === 1 ? "producto" : "productos"}
-        </p>
-
-        {chips.length > 0 && (
-          <div className="mb-3 flex flex-wrap gap-2">
-            {chips.map((c) => (
-              <button
-                key={c.texto}
-                onClick={c.quitar}
-                className="flex items-center gap-1 rounded-full bg-marca-100 px-3 py-1 text-xs font-semibold text-marca-800 hover:bg-marca-200"
-              >
-                {c.texto} <X className="h-3.5 w-3.5" aria-label="Quitar filtro" />
-              </button>
-            ))}
-            <button onClick={limpiar} className="px-2 text-xs font-semibold text-gray-600 underline">
-              Limpiar todo
-            </button>
-          </div>
-        )}
+        <div className="mb-2 lg:hidden">{conteo}</div>
+        {etiquetas && <div className="mb-3">{etiquetas}</div>}
 
         {visibles.length ? (
           <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 xl:grid-cols-4">
