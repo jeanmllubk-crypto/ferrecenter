@@ -11,3 +11,5 @@ respaldos/
 .claude/settings.local.json
 # Catálogos en PDF de las marcas (solo de consulta; no se suben a GitHub ni a la web)
 Catalogos de marcas/
+# Excel de productos armados desde los catálogos (borradores de trabajo)
+Productos por catalogo/

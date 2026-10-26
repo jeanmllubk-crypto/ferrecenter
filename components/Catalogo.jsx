@@ -34,9 +34,9 @@ const lista = (v) => (v ? v.split(",").filter(Boolean) : []);
 
 function Grupo({ titulo, children }) {
   return (
-    <fieldset className="border-b border-gray-100 py-4 first:pt-0">
-      <legend className="mb-2 text-sm font-bold text-marca-900">{titulo}</legend>
-      {children}
+    <fieldset className="border-b border-gray-200 pb-5 pt-5 first:pt-1 last:border-b-0">
+      <legend className="float-left mb-2.5 w-full text-sm font-bold text-marca-900">{titulo}</legend>
+      <div className="clear-left">{children}</div>
     </fieldset>
   );
 }
